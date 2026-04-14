@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>簡易計算機</title>
+</head>
+<body>
+    <h2>簡易計算機</h2>
+    <form action="/calc" method="post">
+        數字 x：
+        <input type="number" name="x" required>
+        <br><br>
+        運算符：
+        <select name="opt">
+            <option value="+">+</option>
+            <option value="-">-</option>
+            <option value="*">*</option>
+            <option value="/">/</option>
+        </select>
+        <br><br>
+        數字 y：
+        <input type="number" name="y" required>
+        <br><br>
+        <input type="submit" value="確定送出">
+    </form>
+    <br>
+    <a href="/">回到首頁</a>
+</body>
+</html>
