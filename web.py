@@ -53,8 +53,11 @@ def movie1():
 
     R = ""
     for item in result:
-        R += str(item.find("img").get("alt")) + "<br>"
-        R += "https://www.atmovies.com.tw" + str(item.find("a").get("href")) + "<br><br>"
+        name = item.find("img").get("alt")
+        link = "https://www.atmovies.com.tw" + item.find("a").get("href")
+        
+        R += f"{name}<br>"
+        R += f"<a href='{link}' target='_blank'>{link}</a><br><br>"
     
     return R
 
