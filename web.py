@@ -1,5 +1,7 @@
 import os
 import json
+import requests
+from bs4 import BeautifulSoup
 import firebase_admin
 from firebase_admin import credentials, firestore
 from google.cloud.firestore_v1.base_query import FieldFilter
@@ -38,6 +40,11 @@ def index():
     link += "<br><a href=/read>讀取Firestore資料(根據lab遞減排序,取前4)</a><br>"
     link += "<br><a href=/search>搜尋老師</a><br>"
     return link
+
+@app.route("/spider1")
+def spider1():
+    R = "20260421"
+    return R
 
 @app.route("/search", methods=["GET", "POST"])
 def search():
