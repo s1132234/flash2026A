@@ -5,13 +5,11 @@ from bs4 import BeautifulSoup
 import firebase_admin
 from firebase_admin import credentials, firestore
 from google.cloud.firestore_v1.base_query import FieldFilter
+from mis.movie2 import update_movies
 
-# 判斷是在 Vercel 還是本地
 if os.path.exists('serviceAccountKey.json'):
-    # 本地環境：讀取檔案
     cred = credentials.Certificate('serviceAccountKey.json')
 else:
-    # 雲端環境：從環境變數讀取 JSON 字串
     firebase_config = os.getenv('FIREBASE_CONFIG')
     cred_dict = json.loads(firebase_config)
     cred = credentials.Certificate(cred_dict)
@@ -40,7 +38,52 @@ def index():
     link += "<br><a href=/read>讀取Firestore資料(根據lab遞減排序,取前4)</a><br>"
     link += "<br><a href=/search>搜尋老師</a><br>"
     link += "<br><a href=/movie1>查詢即將上市電影</a><br>"
+    link += "<br><a href=/movie2>讀取電影網站即將上映影片，寫入Firestore</a><br>"
+    link += "<br><a href=/movie3>搜尋電影資料庫</a><br>"
+
     return link
+
+@app.route("/movie3", methods=["GET", "POST"])
+def movie3():
+    if request.method == "POST":
+        keyword = request.form.get("keyword", "")
+        db = firestore.client()
+        docs = db.collection("電影").get()
+        
+        info = f"<h1>關於『{keyword}』的電影查詢結果：</h1>"
+        found = False
+        
+        for doc in docs:
+            movie_data = doc.to_dict()
+            title = movie_data.get("title", "")
+            
+            if keyword in title:
+                found = True
+                info += f"片 名：{title}<br>"
+                info += f"海 報：{movie_data.get('picture', '無資料')}<br>"
+                info += f"影片介紹：{movie_data.get('hyperlink', '無資料')}<br>"
+                info += f"片 長：{movie_data.get('showLength', '無資料')} 分鐘<br>"
+                info += f"上映日期：{movie_data.get('showDate', '無資料')}<br><br>"
+        
+        if not found:
+            info += f"抱歉，在資料庫中找不到包含『{keyword}』的電影。<br>"
+            
+        info += "<br><a href='/search2'>重新查詢</a> | <a href='/'>回首頁</a>"
+        return info
+    
+    return """
+    <h1>電影資料庫查詢 (新功能)</h1>
+    <form method="POST">
+        <input type="text" name="keyword" placeholder="請輸入電影名稱關鍵字(例如：女)" required>
+        <button type="submit">查詢</button>
+    </form>
+    <br><a href='/'>回首頁</a>
+    """
+
+@app.route("/movie2")
+def movie2():
+    num = update_movies()
+    return f"<h1>已成功從電影網站抓取 {num} 部影片並寫入資料庫！</h1><a href='/'>回到網站首頁</a>"
 
 @app.route("/movie1")
 def movie1():
