@@ -59,10 +59,17 @@ def movie3():
             
             if keyword in title:
                 found = True
+                showLength = movie_data.get("showLength", "尚無片長資訊")
+                
+                if showLength == "尚無片長資訊":
+                    length_display = showLength
+                else:
+                    length_display = f"{showLength} 分鐘"
+
                 info += f"片 名：{title}<br>"
                 info += f"海 報：{movie_data.get('picture', '無資料')}<br>"
                 info += f"影片介紹：{movie_data.get('hyperlink', '無資料')}<br>"
-                info += f"片 長：{movie_data.get('showLength', '無資料')} 分鐘<br>"
+                info += f"片 長：{length_display}<br>"
                 info += f"上映日期：{movie_data.get('showDate', '無資料')}<br><br>"
         
         if not found:
