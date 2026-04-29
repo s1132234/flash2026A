@@ -67,7 +67,7 @@ def movie3():
                     length_display = f"{showLength} 分鐘"
 
                 info += f"片 名：{title}<br>"
-                info += f"海 報：{movie_data.get('picture', '無資料')}<br>"
+                info += f"海 報：https://www.atmovies.com.tw{movie_data.get('picture', '無資料')}<br>"
                 info += f"影片介紹：{movie_data.get('hyperlink', '無資料')}<br>"
                 info += f"片 長：{length_display}<br>"
                 info += f"上映日期：{movie_data.get('showDate', '無資料')}<br><br>"
