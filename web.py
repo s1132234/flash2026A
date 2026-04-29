@@ -60,22 +60,23 @@ def movie3():
             if keyword in title:
                 found = True
                 showLength = movie_data.get("showLength", "尚無片長資訊")
-                
-                if showLength == "尚無片長資訊":
-                    length_display = showLength
-                else:
-                    length_display = f"{showLength} 分鐘"
+                length_display = showLength if showLength == "尚無片長資訊" else f"{showLength} 分鐘"
 
                 info += f"片 名：{title}<br>"
-                info += f"海 報：https://www.atmovies.com.tw{movie_data.get('picture', '無資料')}<br>"
-                info += f"影片介紹：{movie_data.get('hyperlink', '無資料')}<br>"
+                
+                pic = movie_data.get('picture', '')
+                info += f"海 報：<br><img src='https://www.atmovies.com.tw{pic}' width='200' alt='電影海報'><br>"
+                
+                link = movie_data.get('hyperlink', '#')
+                info += f"影片介紹：<a href='{link}' target='_blank'>點我觀看</a><br>"
+                
                 info += f"片 長：{length_display}<br>"
-                info += f"上映日期：{movie_data.get('showDate', '無資料')}<br><br>"
+                info += f"上映日期：{movie_data.get('showDate', '無資料')}<br><br><hr>"
         
         if not found:
             info += f"抱歉，在資料庫中找不到包含『{keyword}』的電影。<br>"
             
-        info += "<br><a href='/search2'>重新查詢</a> | <a href='/'>回首頁</a>"
+        info += "<br><a href='/movie3'>重新查詢</a> | <a href='/'>回首頁</a>"
         return info
     
     return """
