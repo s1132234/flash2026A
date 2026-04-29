@@ -80,7 +80,7 @@ def movie3():
         return info
     
     return """
-    <h1>電影資料庫查詢 (新功能)</h1>
+    <h1>電影資料庫查詢</h1>
     <form method="POST">
         <input type="text" name="keyword" placeholder="請輸入電影名稱關鍵字(例如：女)" required>
         <button type="submit">查詢</button>
