@@ -40,8 +40,56 @@ def index():
     link += "<br><a href=/movie1>查詢即將上市電影</a><br>"
     link += "<br><a href=/movie2>讀取電影網站即將上映影片，寫入Firestore</a><br>"
     link += "<br><a href=/movie3>搜尋電影資料庫</a><br>"
+    link += "<br><a href=/road>易肇事路口查詢</a><br>"
+    link += "<br><a href=/weather>氣象預報查詢</a><br>"
 
     return link
+@app.route("/weather", methods=["GET", "POST"])
+def weather():
+    if request.method == "POST":
+        import requests, json
+        city = request.form.get("city", "")
+        city = city.replace("台", "臺")
+        
+        token = "rdec-key-123-45678-011121314"
+        url = "https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=" + token + "&format=JSON&locationName=" + str(city)
+        
+        try:
+            Data = requests.get(url)
+            location_data = json.loads(Data.text)["records"]["location"][0]
+            Weather = location_data["weatherElement"][0]["time"][0]["parameter"]["parameterName"]
+            Rain = location_data["weatherElement"][1]["time"][0]["parameter"]["parameterName"]
+            
+            result = f"<h1>{city}目前天氣預報</h1>"
+            result += f"<p>{Weather}，降雨機率：{Rain}%</p>"
+            result += "<br><a href='/weather'>重新查詢</a> | <a href='/'>回首頁</a>"
+            return result
+            
+        except Exception as e:
+            return f"<h1>查詢失敗</h1><p>請確認縣市名稱輸入正確（例如：台中市）。</p><a href='/weather'>返回重試</a>"
+
+    return """
+    <h1>縣市氣象預報查詢</h1>
+    <form method="POST">
+        <input type="text" name="city" placeholder="請輸入縣市(如:台中市)" required>
+        <button type="submit">查詢天氣</button>
+    </form>
+    <br><a href='/'>回首頁</a>
+    """
+
+@app.route("/road")
+def road():
+    url = "https://datacenter.taichung.gov.tw/swagger/OpenData/a1b899c0-511f-4e3d-b22b-814982a97e41"
+    
+    Data = requests.get(url)
+    JsonData = json.loads(Data.text)
+    
+    Result = "<h1>台中市易肇事路口統計</h1>"
+    for item in JsonData:
+        Result += item["路口名稱"] + "：發生" + item["總件數"] + "件，主因是" + item["主要肇因"] + "<br><br>"
+    
+    Result += "<br><a href='/'>回首頁</a>"
+    return Result
 
 @app.route("/movie3", methods=["GET", "POST"])
 def movie3():
