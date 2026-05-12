@@ -47,38 +47,38 @@ def index():
     return link
 
 @app.route("/webhook", methods=["POST"])
+
 def webhook():
-    # 取得 Dialogflow 傳來的 JSON
+
     req = request.get_json(force=True)
-    
-    # 取得 action
+
     action = req["queryResult"]["action"]
-    
-    # 預設回覆訊息（以防 action 不符）
-    info = ""
-    
+
+
     if (action == "rateChoice"):
+
+
         rate = req["queryResult"]["parameters"]["rate"]
-        
-        collection_ref = db.collection("電影含分級")
+
+        collection_ref = db.collection("本週新片含分級")
+
         docs = collection_ref.where("rate", "==", rate).get()
-        
+
 
         info = "我是黃士豪設計的電影聊天機器人。查詢結果如下：\n"
         info += "您選擇的分級是：" + rate + "\n"
-        
+
         movie_list = ""
         count = 0
         for doc in docs:
             count += 1
             movie_data = doc.to_dict()
             movie_list += f"{count}. {movie_data['title']}\n"
-            movie_list += f"   介紹：{movie_data['hyperlink']}\n\n"
-        
+
         if count > 0:
-            info += f"目前共有 {count} 部相關影片：\n\n" + movie_list
+            info += f"本週共有 {count} 部相關影片：\n\n" + movie_list
         else:
-            info += "抱歉，目前資料庫中沒有這個分級的電影喔！"
+            info += "抱歉，本週新片中目前沒有這個分級的電影喔！"
 
     return make_response(jsonify({"fulfillmentText": info}))
 
