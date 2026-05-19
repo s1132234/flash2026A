@@ -46,6 +46,10 @@ def index():
 
     return link
 
+@app.route("/demo")
+def demo():
+    return render_template("demo.html")
+
 @app.route("/webhook", methods=["POST"])
 
 def webhook():
