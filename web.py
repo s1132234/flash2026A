@@ -83,7 +83,7 @@ def AI():
     return response.text
 
 @app.route("/demo")
-def demo():
+def demoo():
     return render_template("demo.html")
 
 
@@ -92,33 +92,33 @@ db = firestore.client()
 @app.route("/webhook", methods=["POST"])
 def webhook():
     req = request.get_json(force=True)
-
+    
     action = req["queryResult"]["action"]
-
-if (action == "rateChoice"):
+    
+    if (action == "rateChoice"):
         rate = req["queryResult"]["parameters"]["rate"]
-
+        
         collection_ref = db.collection("本週新片含分級")
         docs = collection_ref.where("rate", "==", rate).get()
-
+        
         info = f"我是黃士豪設計的電影機器人\n"
         info += f"您選擇的分級：【{rate}】\n"
-
+        
         movie_details = ""
         count = 0
-
+        
         for doc in docs:
             count += 1
             movie_data = doc.to_dict()
-
+            
             title = movie_data.get("title", "未命名電影")
-
+            
             link = movie_data.get("hyperlink", "暫無連結資訊") 
-
+            
             movie_details += f"第 {count} 部：{title}\n"
             movie_details += f"介紹連結：\n{link}\n"
 
-
+        
         if count > 0:
             final_response = f"{info}本週共有 {count} 部相關影片：\n{movie_details}"
         else:
@@ -140,8 +140,7 @@ if (action == "rateChoice"):
             config =ai_config,
         )
         info =  response.text
-
-
+    
 
     return make_response(jsonify({"fulfillmentText": info}))
 
