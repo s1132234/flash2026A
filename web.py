@@ -87,6 +87,15 @@ def AI():
 def demo():
     return render_template("demo.html")
 
+
+db = firestore.client()
+
+@app.route("/webhook", methods=["POST"])
+def webhook():
+    req = request.get_json(force=True)
+
+    action = req["queryResult"]["action"]
+
 if (action == "rateChoice"):
         rate = req["queryResult"]["parameters"]["rate"]
 
