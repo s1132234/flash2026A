@@ -7,6 +7,7 @@ from firebase_admin import credentials, firestore
 from google.cloud.firestore_v1.base_query import FieldFilter
 from mis.movie2 import update_movies
 from google import genai
+from google.genai import types
 
 if os.path.exists('serviceAccountKey.json'):
     cred = credentials.Certificate('serviceAccountKey.json')
@@ -86,43 +87,52 @@ def AI():
 def demo():
     return render_template("demo.html")
 
-@app.route("/webhook", methods=["POST"])
-def webhook():
-    req = request.get_json(force=True)
-    action = req["queryResult"]["action"]
-
-    if action == "rateChoice":
+if (action == "rateChoice"):
         rate = req["queryResult"]["parameters"]["rate"]
-        
+
         collection_ref = db.collection("本週新片含分級")
         docs = collection_ref.where("rate", "==", rate).get()
 
-        info = "我是黃士豪設計的電影聊天機器人。查詢結果如下：\n"
-        info += f"您選擇的分級是：{rate}\n"
+        info = f"我是黃士豪設計的電影機器人\n"
+        info += f"您選擇的分級：【{rate}】\n"
 
-        movie_list = ""
+        movie_details = ""
         count = 0
-        
+
         for doc in docs:
             count += 1
             movie_data = doc.to_dict()
-            movie_url = movie_data.get("hyperlink", f"https://www.google.com/search?q={movie_data['title']}")
-            
-            movie_list += f"{count}. {movie_data['title']}\n   👉 點此看介紹：{movie_url}\n\n"
+
+            title = movie_data.get("title", "未命名電影")
+
+            link = movie_data.get("hyperlink", "暫無連結資訊") 
+
+            movie_details += f"第 {count} 部：{title}\n"
+            movie_details += f"介紹連結：\n{link}\n"
+
 
         if count > 0:
-            info += f"本週共有 {count} 部相關影片：\n\n" + movie_list
+            final_response = f"{info}本週共有 {count} 部相關影片：\n{movie_details}"
         else:
-            info += "抱歉，本週新片中目前沒有這個分級的電影喔！"
-            
+            final_response = f"{info}\n抱歉，本週新片中目前沒有【{rate}】分級的電影喔！"
+
+        return make_response(jsonify({
+            "fulfillmentText": final_response
+        }))
+
     elif (action == "input.unknown"):
-        
+
+        ai_config = types.GenerateContentConfig(
+            max_output_tokens = 500
+        )
 
         response = client.models.generate_content(
             model='gemini-3.5-flash',
             contents = req["queryResult"]["queryText"],
+            config =ai_config,
         )
         info =  response.text
+
 
 
     return make_response(jsonify({"fulfillmentText": info}))
