@@ -6,6 +6,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from google.cloud.firestore_v1.base_query import FieldFilter
 from mis.movie2 import update_movies
+from google import genai
 
 if os.path.exists('serviceAccountKey.json'):
     cred = credentials.Certificate('serviceAccountKey.json')
@@ -15,6 +16,10 @@ else:
     cred = credentials.Certificate(cred_dict)
 
 firebase_admin.initialize_app(cred)
+
+
+client = genai.Client()
+
 
 
 from flask import Flask, render_template, request, make_response, jsonify
