@@ -114,6 +114,10 @@ def webhook():
             info += f"本週共有 {count} 部相關影片：\n\n" + movie_list
         else:
             info += "抱歉，本週新片中目前沒有這個分級的電影喔！"
+            
+    elif (action == "input.unknown"):
+        info =  req["queryResult"]["queryText"]
+
 
     return make_response(jsonify({"fulfillmentText": info}))
 
