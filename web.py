@@ -88,33 +88,28 @@ def demo():
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
+    # build a request object
     req = request.get_json(force=True)
-    action = req["queryResult"]["action"]
+    # fetch queryResult from json
+    action =  req["queryResult"]["action"]
+    #msg =  req["queryResult"]["queryText"]
+    #info = "我是楊子青設計的電影聊天機器人, 動作：" + action + "； 查詢內容：" + msg
+    if (action == "rateChoice"):
+        rate =  req["queryResult"]["parameters"]["rate"]
+        info = "我是黃士豪設計的電影聊天機器人,您選擇的電影分級是：" + rate + "，相關電影：\n"
 
-    if action == "rateChoice":
-        rate = req["queryResult"]["parameters"]["rate"]
-        
+        db = firestore.client()
         collection_ref = db.collection("本週新片含分級")
-        docs = collection_ref.where("rate", "==", rate).get()
-
-        info = "我是黃士豪設計的電影聊天機器人。查詢結果如下：\n"
-        info += f"您選擇的分級是：{rate}\n"
-
-        movie_list = ""
-        count = 0
-        
+        docs = collection_ref.get()
+        result = ""
         for doc in docs:
-            count += 1
-            movie_data = doc.to_dict()
-            movie_url = movie_data.get("hyperlink", f"https://www.google.com/search?q={movie_data['title']}")
-            
-            movie_list += f"{count}. {movie_data['title']}\n   👉 點此看介紹：{movie_url}\n\n"
+            dict = doc.to_dict()
+            if rate in dict["rate"]:
+                result += "片名：" + dict["title"] + ";\n"
+                result += "連結：" + dict["hyperlink"] + "\n\n"
 
-        if count > 0:
-            info += f"本週共有 {count} 部相關影片：\n\n" + movie_list
-        else:
-            info += "抱歉，本週新片中目前沒有這個分級的電影喔！"
-            
+        info += result
+
     elif (action == "input.unknown"):
         info =  req["queryResult"]["queryText"]
 
