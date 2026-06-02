@@ -93,7 +93,9 @@ db = firestore.client()
 def webhook():
     req = request.get_json(force=True)
     
-    action = req["queryResult"]["action"]
+    action = req.get("queryResult", {}).get("action", "")
+    
+    info = "抱歉，我現在無法處理這個請求。"
     
     if (action == "rateChoice"):
         rate = req["queryResult"]["parameters"]["rate"]
@@ -112,36 +114,34 @@ def webhook():
             movie_data = doc.to_dict()
             
             title = movie_data.get("title", "未命名電影")
-            
             link = movie_data.get("hyperlink", "暫無連結資訊") 
             
             movie_details += f"第 {count} 部：{title}\n"
             movie_details += f"介紹連結：\n{link}\n"
 
-        
         if count > 0:
-            final_response = f"{info}本週共有 {count} 部相關影片：\n{movie_details}"
+            info = f"{info}本週共有 {count} 部相關影片：\n{movie_details}"
         else:
-            final_response = f"{info}\n抱歉，本週新片中目前沒有【{rate}】分級的電影喔！"
-
-        return make_response(jsonify({
-            "fulfillmentText": final_response
-        }))
+            info = f"{info}\n抱歉，本週新片中目前沒有【{rate}】分級的電影喔！"
 
     elif (action == "input.unknown"):
+        instruction_text = (
+            "你是一個熱心且知識豐富的專業智慧助理。"
+            "對於使用者的提問，請回覆重點的關鍵字，不要重述問題。"         
+        )
 
         ai_config = types.GenerateContentConfig(
-            max_output_tokens = 500
+            max_output_tokens=500,
+            system_instruction=instruction_text
         )
 
         response = client.models.generate_content(
-            model='gemini-3.5-flash',
-            contents = req["queryResult"]["queryText"],
-            config =ai_config,
+            model='gemini-3.1-flash-lite',
+            contents=req["queryResult"]["queryText"],
+            config=ai_config,
         )
-        info =  response.text
+        info = response.text
     
-
     return make_response(jsonify({"fulfillmentText": info}))
 
 @app.route("/rate")
